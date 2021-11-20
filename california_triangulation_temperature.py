@@ -46,7 +46,42 @@ app.layout = html.Div([
 
 df_raw = pd.read_csv("2790101.csv")
 
-def getData(month):
+df_new = df_raw[df_raw['DATE'] == 1]
+df_new.reset_index(inplace=True)
+x_cal_long = df_new['LONGITUDE'].tolist()
+y_cal_lat = df_new['LATITUDE'].tolist()
+z_cal = [0] * len(x_cal_long)
+z_cal_temp = [item for item in (df_new['MLY-DUTR-NORMAL'].tolist())]
+temp_mean=round(np.mean([item for item in z_cal_temp if np.isnan(item) == False]),1)
+z_cal_temp = [ temp_mean if np.isnan(x) else x for x in z_cal_temp]
+
+
+#define 2D points, as input data for the Delaunay triangulation of U
+
+points2D_cal=np.vstack([x_cal_long,y_cal_lat]).T
+tri_cal = Delaunay(points2D_cal)    #triangulate the rectangle U
+
+sp1_index=np.where(tri_cal.points == [-120.1574,41.8715])[0][0]  
+sp2_index=np.where(tri_cal.points == [-116.8669,36.4622])[0][0] 
+sp3_index=np.where(tri_cal.points == [-115.5311,35.45917])[0][0] 
+sp4_index=np.where(tri_cal.points == [-114.6188,34.7675])[0][0]  
+sp5_index=np.where(tri_cal.points == [-114.1708,34.2903])[0][0]  
+sp6_index=np.where(tri_cal.points == [-119.0142,38.2119])[0][0]
+s_1 = {sp1_index,sp2_index,sp3_index}
+s_2 = {sp1_index,sp3_index,sp4_index}
+s_3 = {sp1_index,sp4_index,sp5_index}
+s_4 = {sp1_index,sp2_index,sp6_index}
+
+tri_cal.simplices = np.array([item for item in tri_cal.simplices 
+                                if (set(item) == s_1 or 
+                                     set(item) == s_2 or 
+                                     set(item) == s_3 or 
+                                     set(item) == s_4) == False])
+
+
+
+
+def getTemperature(month):
     if month == 'January':
         scope = 1
     elif month == 'February':
@@ -72,19 +107,13 @@ def getData(month):
     else:
         scope = 12
          
-
     df_new = df_raw[df_raw['DATE'] == scope]
     df_new.reset_index(inplace=True)
-    x_cal_long = df_new['LONGITUDE'].tolist()
-    y_cal_lat = df_new['LATITUDE'].tolist()
-    z_cal = [0] * len(x_cal_long)
     z_cal_temp = [item for item in (df_new['MLY-DUTR-NORMAL'].tolist())]
     temp_mean=round(np.mean([item for item in z_cal_temp if np.isnan(item) == False]),1)
     z_cal_temp = [ temp_mean if np.isnan(x) else x for x in z_cal_temp]
-    points2D_cal=np.vstack([x_cal_long,y_cal_lat]).T
-    tri_cal = Delaunay(points2D_cal)
 
-    return x_cal_long,y_cal_lat, z_cal, z_cal_temp, tri_cal
+    return z_cal_temp
 
 def map_z2color(zval, colormap, vmin, vmax):
     #map the normalized value zval to a corresponding color in the colormap
@@ -198,7 +227,7 @@ def update_graph(option_slctd):
 
     container = "The selected month is: {}".format(option_slctd)
 
-    x_cal_long,y_cal_lat, z_cal, z_cal_temp, tri_cal = getData(option_slctd)
+    z_cal_temp = getTemperature(option_slctd)
     data2=plotly_trisurf_cal(x_cal_long,y_cal_lat, z_cal, z_cal_temp, tri_cal.simplices, colormap=cm.cubehelix, plot_edges=True)
     fig = go.Figure(data=data2, layout=layout)
 
