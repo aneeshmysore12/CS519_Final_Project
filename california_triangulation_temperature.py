@@ -18,6 +18,7 @@ app.layout = html.Div(
     children=[
         html.Div(
             children=[
+                #html.P(children="🥑", className="header-emoji"),
                 html.P(children="🥑", className="header-emoji"),
                 html.H1(
                     children="Triangulated California Weather Map For Years 2010-2020", className="header-title"
@@ -37,8 +38,8 @@ app.layout = html.Div(
                         dcc.Dropdown(
                             id="weather-type-filter",
                             options=[
-                                {"label": "Temperature", "value": "Temperature"},
-                                {"label": "Precipitation", "value": "Precipitation"}],
+                                {"label": "Temperature", "value": "Temperature"}],
+                                # {"label": "Precipitation", "value": "Precipitation"}],
                             clearable=False,
                             searchable=False,
                             value="Temperature",                       
@@ -46,52 +47,65 @@ app.layout = html.Div(
                         ),
                     ],
                 ),
+
                 html.Div(
                     children=[
-                        html.Div(children="Year", className="menu-title"),
-                        dcc.Dropdown(
-                            id="year-filter",
-                            options=[
-                                {"label": "2010", "value": "2010"},
-                                {"label": "2011", "value": "2011"},
-                                {"label": "2012", "value": "2012"},
-                                {"label": "2013", "value": "2013"},  
-                                {"label": "2014", "value": "2014"},
-                                {"label": "2015", "value": "2015"},  
-                                {"label": "2016", "value": "2016"},  
-                                {"label": "2017", "value": "2017"},  
-                                {"label": "2018", "value": "2018"},
-                                {"label": "2019", "value": "2019"},  
-                                {"label": "2020", "value": "2020"}],
-                            clearable=False,
-                            searchable=False,
-                            value="2010",
-                            className="dropdown",
+                        html.Div(
+                            children="Year",
+                            className="year-slider-title"
+                            ),
+                        dcc.Slider(
+                            id='year-slider-filter',
+                            min=2010,
+                            max=2020,
+                            step=1,
+                            value=2010,
+                            className="myslider",
+                                marks={
+                                2010: '2010',
+                                2011: '2011',
+                                2012: '2012',
+                                2013: '2013',
+                                2014: '2014',
+                                2015: '2015',                               
+                                2016: '2016',
+                                2017: '2017',
+                                2018: '2018',
+                                2019: '2019',
+                                2020: '2020',
+                            },
+                            tooltip={"placement": "bottom", "always_visible": False},
                         ),
                     ]
                 ),
-                html.Div(
+               html.Div(
                     children=[
-                        html.Div(children="Month", className="menu-title"),
-                        dcc.Dropdown(
-                            id="month-filter",
-                            options=[
-                                {"label": "January", "value": "-01"},
-                                {"label": "February", "value": "-02"},
-                                {"label": "March", "value": "-03"},
-                                {"label": "April", "value": "-04"},  
-                                {"label": "May", "value": "-05"},
-                                {"label": "June", "value": "-06"},  
-                                {"label": "July", "value": "-07"},  
-                                {"label": "August", "value": "-08"},  
-                                {"label": "September", "value": "-09"},
-                                {"label": "October", "value": "-10"},  
-                                {"label": "November", "value": "-11"},  
-                                {"label": "December", "value": "-12"}],
-                            clearable=False,
-                            searchable=False,
-                            value="-01",
-                            className="dropdown",
+                        html.Div(
+                            children="Month",
+                            className="month-slider-title"
+                            ),
+                        dcc.Slider(
+                            id='month-slider-filter',
+                            min=1,
+                            max=12,
+                            step=1,
+                            value=1,
+                            className="myslider",
+                                marks={
+                                1: 'JAN',
+                                2: 'FEB',
+                                3: 'MAR',
+                                4: 'APR',
+                                5: 'MAY',
+                                6: 'JUN',                               
+                                7: 'JUL',
+                                8: 'AUG',
+                                9: 'SEP',
+                                10: 'OCT',
+                                11: 'NOV',
+                                12: 'DEC'
+                            },
+                            tooltip={"placement": "bottom", "always_visible": False},
                         ),
                     ]
                 ),
@@ -99,35 +113,12 @@ app.layout = html.Div(
             className="menu",
         ),
         html.Div(
-            id='output_container', 
-            children=[]
+            dcc.Graph(id='cal_3d_obj', figure={}),
+            className="diagram",
         ),
-        dcc.Graph(id='cal_3d_obj', figure={})
     ]
 )
 
-#                 html.Div(
-#                     children=[
-#                         html.Div(
-#                             children="Date Range",
-#                             className="menu-title"
-#                             ),
-#                         dcc.DatePickerRange(
-#                             id="date-range",
-#                             min_date_allowed=data.Date.min().date(),
-#                             max_date_allowed=data.Date.max().date(),
-#                             start_date=data.Date.min().date(),
-#                             end_date=data.Date.max().date(),
-#                         ),
-#  #                       dcc.Slider(
-#  #                           id='date-selection',
-#  #                           min=data.Date.min().date(),
-#  #                           max=data.Date.max().date(),
-#  #                           step=1,
-#  #                           value=10,
-#  #                       ),
-#                     ]
-#                 ),
 
 
 
@@ -136,8 +127,12 @@ app.layout = html.Div(
 #  2) Skip station that has more than 30 missing TAVG values
 #  3) For each station, calculate the average value for the same month from other years which have values for that same year. 
 #      using this average value to fill other missing data for this station for the same month
-#  4) 1Finally write the data into csv file cal_2010_2020.csv
+#  Finally write the data into csv file cal_2010_2020.csv
 
+
+# years = ["2010","2011","2012","2013","2014","2015",
+#             "2016","23017","2018","2019","2020"]
+# months = ["-01","-02","-03","-04","-05","-06","-07","-08","-09","-10","-11","-12"]
 # path = os.getcwd()
 # csv_files = glob.glob(os.path.join("weather_data/2010_2020", "*.csv"))
 
@@ -179,7 +174,7 @@ app.layout = html.Div(
 # df_raw_10y.to_csv('cal_2010_2020.csv', index=False)
 
 
-
+months = ["-01","-02","-03","-04","-05","-06","-07","-08","-09","-10","-11","-12"]
 
 df_raw = pd.read_csv("cal_2010_2020.csv")
 df_jan = df_raw[df_raw["DATE"] == "2010-01"]
@@ -212,6 +207,7 @@ tri_cal.simplices = np.array([item for item in tri_cal.simplices
                                      set(item) == s_4 or 
                                      set(item) == s_5) == False])
 
+s_year_global = 2010
 
 def map_z2color(zval, colormap, vmin, vmax):
     #map the normalized value zval to a corresponding color in the colormap
@@ -243,7 +239,7 @@ def plotly_trisurf_cal(x, y, z, z_temperature, simplices, colormap=cm.RdBu, plot
     min_zmean=np.min(zmean)
     max_zmean=np.max(zmean)
     facecolor=[map_z2color(zz,  colormap, min_zmean, max_zmean) for zz in zmean]
-    #print(facecolor)
+
     I,J,K=tri_indices(simplices)
     triangles=go.Mesh3d(x=x,
                      y=y,
@@ -274,12 +270,6 @@ def plotly_trisurf_cal(x, y, z, z_temperature, simplices, colormap=cm.RdBu, plot
         return [triangles, lines]
 
 
-axis = dict(
-showbackground=True,
-backgroundcolor="rgb(230, 230,230)",
-gridcolor="rgb(255, 255, 255)",
-zerolinecolor="rgb(255, 255, 255)",
-    )
 noaxis=dict(showbackground=False,
             showline=False,
             zeroline=False,
@@ -288,40 +278,36 @@ noaxis=dict(showbackground=False,
             title=''
           )
 layout = go.Layout(
-         #title='Triangulated California Temperature Map',
+         title='Triangulated California Weather Map',
          width=1200,
-         height=600,
+         height=1200,
          scene=dict(xaxis=noaxis,
                     yaxis=noaxis,
                     zaxis=noaxis,
                     aspectratio=dict(x=10, y=10, z=0),
-                    camera=dict(eye=dict(x=0.1,
-                                     y=-1.5,
-                                     z= 5)
+                    camera=dict(eye=dict(x=0.001,
+                                     y=-0.015,
+                                     z= 1.2)
                             )
                 )
         )
 
 @app.callback(
-    [Output(component_id='output_container', component_property='children'),
-    Output(component_id='cal_3d_obj', component_property='figure')],
+    Output(component_id='cal_3d_obj', component_property='figure'),
     [
         Input("weather-type-filter", "value"),
-        Input("year-filter", "value"),
-        Input("month-filter", "value"),
+        Input("year-slider-filter", "value"),
+        Input("month-slider-filter", "value"),
     ],
 
 
 )
 
-def update_graph(weather_type, year, month):
-
-    #container = "The selected month is: {}".format(option_slctd)
-    print(year+month)
-    z_cal_temp = (df_raw[df_raw["DATE"] == year+month])["TAVG"]
+def update_graph(weather_type,s_year,s_month):
+    z_cal_temp = (df_raw[df_raw["DATE"] == str(s_year)+str(months[s_month-1])])["TAVG"]
     graph_data=plotly_trisurf_cal(x_cal_long,y_cal_lat, z_cal, z_cal_temp, tri_cal.simplices, colormap=cm.cubehelix, plot_edges=True)
     fig = go.Figure(data=graph_data, layout=layout)
-    return "",fig
+    return fig
 
 
 if __name__ == "__main__":
