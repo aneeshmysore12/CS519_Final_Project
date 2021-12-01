@@ -33,7 +33,7 @@ cal.layout = html.Div(
                     children="Triangulated California Weather Map For Years 2010-2020", className="header-title"
                 ),
                 html.P(
-                    children="Color mapping California using temperatures recorded at Calfornia weather collection stations from year 2010 to 2020",
+                    children="Color mapping California using temperatures recorded at weather collection stations",
                     className="header-description",
                 ),
             ],
