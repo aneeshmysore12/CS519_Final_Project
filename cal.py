@@ -33,7 +33,7 @@ cal.layout = html.Div(
                     children="Triangulated California Weather Map For Years 2010-2020", className="header-title"
                 ),
                 html.P(
-                    children="Color mapping California using temperatures recorded at weather collection stations",
+                    children="Color mapping California using temperatures recorded at Calfornia weather data collection stations",
                     className="header-description",
                 ),
             ],
@@ -175,7 +175,7 @@ cal.layout = html.Div(
 
 
 #  The following commented code is used to read raw data and clean up missing data using the following logic:
-#  1) Skip station that has 132 month of data (11 years)
+#  1) Skip station that has less than 132 month of data (11 years)
 #  2) Skip station that has more than 30 missing TAVG values
 #  3) For each station, calculate the average value for the same month from other years which have values for that same year. 
 #      using this average value to fill other missing data for this station for the same month
@@ -262,7 +262,6 @@ tri_cal.simplices = np.array([item for item in tri_cal.simplices
                                      set(item) == s_4 or 
                                      set(item) == s_5) == False])
 
-s_year_global = 2010
 
 def map_z2color(zval, colormap, vmin, vmax):
     #map the normalized value zval to a corresponding color in the colormap
@@ -412,8 +411,6 @@ def on_click(n_intervals):
         Input("year-slider-filter", "value"),
         Input("month-slider-filter", "value"),
     ],
-
-
 )
 
 def update_graph(weather_type,s_year,s_month):
@@ -422,7 +419,6 @@ def update_graph(weather_type,s_year,s_month):
     graph_data=plotly_trisurf_cal(x_cal_long,y_cal_lat, z_cal, z_cal_temp, tri_cal.simplices, colormap=cm.rainbow, plot_edges=True)
     fig = go.Figure(data=graph_data, layout=layout)
     fig.update_layout(title_text="Triangulated California Weather Map: " + str(s_year) + ", " + months_str[s_month-1])
-
     return fig
 
 if __name__ == "__main__":
